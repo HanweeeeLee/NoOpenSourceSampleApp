@@ -9,13 +9,24 @@
 import UIKit
 
 class ViewController: UIViewController {
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        print("test")
     }
-
-
+    
+    func getTest() {
+        ApiManager.query(url: "https://itunes.apple.com/search/media=music&entity=song&term=test",
+                         function: .get,
+                         param: nil,
+                         requestType: .html,
+                         responseType: .html,
+                         timeout: 60,
+                         completeHanlder: { (response) in
+                            print("data:\(String(describing: String(data: response, encoding: .utf8)))")
+        }) { (err) in
+            print("err:\(err.localizedDescription)")
+        }
+    }
+    
+    
 }
-
