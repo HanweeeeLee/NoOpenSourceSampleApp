@@ -23,7 +23,7 @@ enum ApiManagerType {
 
 class ApiManager: NSObject {
 
-    class func query(url:String,function:ApiManagerRequestFunction,param:[String:Any]?,requestType:ApiManagerType,responseType:ApiManagerType,timeout:UInt,completeHanlder: @escaping (Data) -> (),failureHandler: @escaping (Error) -> ()) {
+    class func query(url:String,function:ApiManagerRequestFunction,header:[String:Any]?,param:[String:Any]?,requestType:ApiManagerType,responseType:ApiManagerType,timeout:UInt,completeHanlder: @escaping (Data) -> (),failureHandler: @escaping (Error) -> ()) {
         guard let realUrl = URL(string: url) else {
             //todo 에러처리
             return
@@ -53,12 +53,18 @@ class ApiManager: NSObject {
             request.setValue("text/html; charset=utf-8", forHTTPHeaderField: "Accept")
             break
         }
+        if header != nil {
+            let keys = Array(header!.keys)
+            for i in 0..<header!.count {
+                request.setValue((header![keys[i]] as! String), forHTTPHeaderField: keys[i])
+            }
+        }
         
         let sessionConfig = URLSessionConfiguration.default
         sessionConfig.timeoutIntervalForRequest = TimeInterval(Float(timeout))
         //        sessionConfig.timeoutIntervalForResource = 60.0
         sessionConfig.allowsCellularAccess = true //셀룰러로 데이터를 사용하는것을 허용?
-        sessionConfig.waitsForConnectivity = true //세션이 연결을 사용할수 있을때까지 기다릴것인가 아니면 즉시 실패처리할것인가
+//        sessionConfig.waitsForConnectivity = true //세션이 연결을 사용할수 있을때까지 기다릴것인가 아니면 즉시 실패처리할것인가
         //등등...
         let session = URLSession(configuration: sessionConfig)
         
