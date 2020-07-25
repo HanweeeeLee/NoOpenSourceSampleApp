@@ -7,6 +7,10 @@
 //
 
 import UIKit
+import SwiftyJSON
+
+//todo navigation 디자인하기
+//todo 런치스크린 디자인
 
 class ViewController: UIViewController {
     
@@ -22,9 +26,10 @@ class ViewController: UIViewController {
     //MARK: lifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-//        weatherQueryInfoArr = readJsonFile()
-//        initUI()
-        getTest2()
+        weatherQueryInfoArr = readJsonFile()
+        initUI()
+//        getTest()
+//        getTest2()
     }
     
     //MARK function
@@ -32,6 +37,7 @@ class ViewController: UIViewController {
     func getTest() {
         ApiManager.query(url: "https://itunes.apple.com/search/media=music&entity=song&term=test",
                          function: .get,
+                         header: nil,
                          param: nil,
                          requestType: .html,
                          responseType: .html,
@@ -46,6 +52,7 @@ class ViewController: UIViewController {
     func getTest2() {
         ApiManager.query(url: "http://api.openweathermap.org/data/2.5/weather?id=6359862&appid=ed30f1d93596934d60d66e095f34b2ce",
                          function: .get,
+                         header: nil,
                          param: nil,
                          requestType: .json,
                          responseType: .json,
@@ -78,9 +85,7 @@ class ViewController: UIViewController {
         return resultArr
     }
     
-    func converteKelvinToCelsius(input:Float) -> Float {
-        return input - 273.5
-    }
+
     
     
 }
@@ -101,5 +106,34 @@ extension ViewController:UITableViewDelegate,UITableViewDataSource {
         return cell
     }
     
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let data = weatherQueryInfoArr![indexPath.row] as! [String:Any]
+        let id:String = String(data["id"]! as! Int)
+        let url = CommonDefine.apiAddr + "?id=" + id + "&appid=" + CommonDefine.apiKey
+        print("")
+        //로딩뷰 띄우기
+        ApiManager.query(url: url,
+                         function: .get,
+                         header: nil,
+                         param: nil,
+                         requestType: .json,
+                         responseType: .json,
+                         timeout: 60,
+                         completeHanlder: { (responseData) in
+//                            let responseDic = try! JSONSerialization.jsonObject(with: responseData, options: []) as? [String: Any]
+                            let myJson:JSON = try! JSON(data: responseData)
+                            DispatchQueue.main.async {
+                                let vc = InfoViewController(nibName: "InfoViewController", bundle: nil)
+                                vc.data = myJson
+                                self.navigationController?.pushViewController(vc, animated: true)
+                            }
+                            
+                            
+                            
+                            
+        }) { (err) in
+            //얼럿띄우기
+            print("err:\(err.localizedDescription)")
+        }
+    }
 }

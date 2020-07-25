@@ -21,7 +21,7 @@ enum ApiManagerType {
     case html
 }
 
-class ApiManager: NSObject {
+class ApiManager {
 
     class func query(url:String,function:ApiManagerRequestFunction,header:[String:Any]?,param:[String:Any]?,requestType:ApiManagerType,responseType:ApiManagerType,timeout:UInt,completeHanlder: @escaping (Data) -> (),failureHandler: @escaping (Error) -> ()) {
         guard let realUrl = URL(string: url) else {
